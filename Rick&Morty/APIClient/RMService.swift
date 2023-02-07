@@ -37,7 +37,6 @@ final class RMService {
             return
         }
 
-        
         let task = URLSession.shared.dataTask(with: urlRequest) { data, _, error in
             // Check if data exists and no error is thrown
             guard let data = data, error == nil else {
