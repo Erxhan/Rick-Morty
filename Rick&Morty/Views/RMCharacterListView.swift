@@ -8,8 +8,8 @@
 import UIKit
 
 /// View that handles showing list of characters, loader, etc...
-final class CharacterListView: UIView {
-    private let viewModel = CharacterListViewViewModel()
+final class RMCharacterListView: UIView {
+    private let viewModel = RMCharacterListViewViewModel()
 
     private let spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .large)
@@ -26,7 +26,10 @@ final class CharacterListView: UIView {
         collectionView.isHidden = true
         collectionView.alpha = 0
         collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        collectionView.register(
+            RMCharacterCollectionViewCell.self,
+            forCellWithReuseIdentifier: RMCharacterCollectionViewCell.cellIdentifier
+        )
         return collectionView
     }()
 
@@ -38,6 +41,7 @@ final class CharacterListView: UIView {
         addSubviews(spinner, collectionView)
         addConstraints()
         spinner.startAnimating()
+        viewModel.delegate = self
         viewModel.fetchCharacters()
         setupCollectionView()
     }
@@ -63,13 +67,16 @@ final class CharacterListView: UIView {
     private func setupCollectionView() {
         collectionView.delegate = viewModel
         collectionView.dataSource = viewModel
+    }
+}
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.spinner.stopAnimating()
-            self.collectionView.isHidden = false
-            UIView.animate(withDuration: 0.4) {
-                self.collectionView.alpha = 1
-            }
+extension RMCharacterListView: RMCharacterListViewViewModelDelegate {
+    func didLoadInitialCharacters() {
+        spinner.stopAnimating()
+        collectionView.isHidden = false
+        collectionView.reloadData() // Initial fetch
+        UIView.animate(withDuration: 0.4) {
+            self.collectionView.alpha = 1
         }
     }
 }
